@@ -4,26 +4,44 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os  # Pastikan ini ada
 
 # Konfigurasi tampilan halaman Streamlit
 st.set_page_config(page_title="E-Commerce Dashboard", layout="wide")
 
+# --- PATH CORRECTION (FINAL) ---
+
+# 1. Dapatkan path absolut ke folder tempat script ini (main.py) berada
+#    Contoh: /Users/Anda/Proyek/submission_e-commerce_dicoding/dasboard
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# 2. Gabungkan path folder tersebut dengan nama file CSV
+#    Ini akan membuat path lengkap seperti:
+#    /.../dasboard/customers_df.csv
+CUSTOMER_PATH = os.path.join(BASE_DIR, 'customers_df.csv')
+ORDER_ITEMS_PATH = os.path.join(BASE_DIR, 'order_items_df.csv')
+ORDER_PAYMENTS_PATH = os.path.join(BASE_DIR, 'order_payments_df.csv')
+ORDERS_PATH = os.path.join(BASE_DIR, 'orders_df.csv')
+SELLERS_PATH = os.path.join(BASE_DIR, 'sellers_dataset_df.csv')
+ORDER_FULL_PATH = os.path.join(BASE_DIR, 'order_full.csv')
+
+
 # --- LOAD DATA ---
 @st.cache_data
 def load_data():
-    customers_df = pd.read_csv("customers_df.csv")
-    order_items_df = pd.read_csv("order_items_df.csv")
-    order_payments_df = pd.read_csv("order_payments_df.csv")
-    orders_df = pd.read_csv("orders_df.csv")
-    sellers_dataset_df = pd.read_csv("sellers_dataset_df.csv")
-    order_full = pd.read_csv("order_full.csv")
+    # 3. Gunakan variabel path yang sudah benar
+    customers_df = pd.read_csv(CUSTOMER_PATH)
+    order_items_df = pd.read_csv(ORDER_ITEMS_PATH)
+    order_payments_df = pd.read_csv(ORDER_PAYMENTS_PATH)
+    orders_df = pd.read_csv(ORDERS_PATH)
+    sellers_dataset_df = pd.read_csv(SELLERS_PATH)
+    order_full = pd.read_csv(ORDER_FULL_PATH)
     
     return customers_df,  order_items_df, order_payments_df, orders_df, sellers_dataset_df, order_full
 
 
 # --- LOAD SEMUA DATA ---
 customers_df,  order_items_df, order_payments_df, orders_df, sellers_dataset_df, order_full = load_data()
-
 # --- SIDEBAR ---
 st.sidebar.title("📊 E-Commerce Dashboard")
 
