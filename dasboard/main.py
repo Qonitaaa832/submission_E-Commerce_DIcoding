@@ -70,8 +70,7 @@ if menu == "Overview":
 
     st.markdown("""
     **Insight:**  
-    Metode pembayaran dengan nilai transaksi tertinggi cenderung menggunakan **Credit Card**, 
-    sedangkan transaksi dengan nominal rendah lebih banyak menggunakan **voucher**.
+    Metode pembayaran credit_card memiliki distribusi nilai transaksi tertinggi di setiap tahunnya dibanding metode lainnya. Dapat menerapkan strategi dengan memberikan voucher/diskon/cashback pengguna credit card dengan salah satu syarat terdapat minimal transaksi dimana ini bertujuan untuk untuk meningkatkan rata-rata nilai pembelian, mendorong pembelian berulang, dan memperkuat loyalitas pelanggan.
     """)
 
 
@@ -79,7 +78,8 @@ if menu == "Overview":
 
 elif menu == "Customer & Seller":
     st.title(f"👥 Analisis Customer & Seller per State ({selected_year})")
-    #Top Seller dan Customer
+
+    # --- TOP SELLER & CUSTOMER ---
     bycustomer_df = df_filtered.groupby("customer_state")["customer_unique_id"].nunique().reset_index()
     bycustomer_df.rename(columns={"customer_unique_id": "customer_count"}, inplace=True)
 
@@ -87,54 +87,99 @@ elif menu == "Customer & Seller":
     byseller_df.rename(columns={"seller_id": "seller_count"}, inplace=True)
 
     col1, col2 = st.columns(2)
+
     with col1:
-        st.subheader("Top 5 State dengan Customer Terbanyak")
+        st.subheader("🏆 Top 5 State dengan Customer Terbanyak")
+        top_customer = bycustomer_df.sort_values(by="customer_count", ascending=False).head(5)
+
+        # Visualisasi
         fig, ax = plt.subplots()
-        sns.barplot(data=bycustomer_df.sort_values(by="customer_count", ascending=False).head(5),
-                    y="customer_state", x="customer_count", palette="Blues", ax=ax)
+        sns.barplot(data=top_customer, y="customer_state", x="customer_count", palette="Blues", ax=ax)
+        ax.set_xlabel("Total Customer")
+        ax.set_ylabel("State")
         st.pyplot(fig)
 
+        # Tabel
+        st.write("**Tabel: Top 5 State dengan Customer Terbanyak**")
+        st.dataframe(top_customer.rename(columns={
+            "customer_state": "Negara Bagian",
+            "customer_count": "Total Customer"
+        }))
+
     with col2:
-        st.subheader("5 State dengan Seller Terbanyak")
+        st.subheader("🏆 Top 5 State dengan Seller Terbanyak")
+        top_seller = byseller_df.sort_values(by="seller_count", ascending=False).head(5)
+
+        # Visualisasi
         fig, ax = plt.subplots()
-        sns.barplot(data=byseller_df.sort_values(by="seller_count", ascending=False).head(5),
-                    y="seller_state", x="seller_count", palette="Greens", ax=ax)
+        sns.barplot(data=top_seller, y="seller_state", x="seller_count", palette="Greens", ax=ax)
+        ax.set_xlabel("Total Seller")
+        ax.set_ylabel("State")
         st.pyplot(fig)
-    
+
+        # Tabel
+        st.write("**Tabel: Top 5 State dengan Seller Terbanyak**")
+        st.dataframe(top_seller.rename(columns={
+            "seller_state": "Negara Bagian",
+            "seller_count": "Total Seller"
+        }))
+
+    # --- Insight Strategis ---
     st.markdown(f"""
     **Insight:**  
-    Distribusi pelanggan dan penjual per negara bagian menunjukkan konsentrasi utama di wilayah tertentu {selected_year if selected_year != '2016-2018' else 'analisis total periode'}.
+    Negara bagian dengan jumlah penjual dan pembeli tertinggi setiap tahunnya yaitu **SP**.  
+    Strategi yang diusulkan: **mempertahankan loyalitas pelanggan di wilayah SP** dengan program seperti *voucher gratis ongkir*  
+    atau *diskon eksklusif bagi pembeli aktif*.  
+    Tujuannya adalah menjaga **retensi pelanggan** dan **meningkatkan frekuensi pembelian** di pasar terbesar tersebut.
     """)
 
-    #Bottom seller dan Customer
+    # --- BOTTOM SELLER & CUSTOMER ---
+    col3, col4 = st.columns(2)
 
-    bycustomer_df = df_filtered.groupby("customer_state")["customer_unique_id"].nunique().reset_index()
-    bycustomer_df.rename(columns={"customer_unique_id": "customer_count"}, inplace=True)
+    with col3:
+        st.subheader(" 5 Negara dengan Customer Sedikit")
+        bottom_customer = bycustomer_df.sort_values(by="customer_count", ascending=True).head(5)
 
-    byseller_df = df_filtered.groupby("seller_state")["seller_id"].nunique().reset_index()
-    byseller_df.rename(columns={"seller_id": "seller_count"}, inplace=True)
-
-    col1, col2 = st.columns(2)
-    with col1:
-        st.subheader("5 State dengan Customer Sedikit")
         fig, ax = plt.subplots()
-        sns.barplot(data=bycustomer_df.sort_values(by="customer_count", ascending=True).head(5),
-                    y="customer_state", x="customer_count", palette="Blues", ax=ax)
+        sns.barplot(data=bottom_customer, y="customer_state", x="customer_count", palette="Blues", ax=ax)
+        ax.set_xlabel("Total Customer")
+        ax.set_ylabel("State")
         st.pyplot(fig)
 
-    with col2:
-        st.subheader("5 State dengan Seller Sedikit")
+        # Tabel
+        st.write("**Tabel: 5 State dengan Customer Sedikit**")
+        st.dataframe(bottom_customer.rename(columns={
+            "customer_state": "Negara Bagian",
+            "customer_count": "Total Customer"
+        }))
+
+    with col4:
+        st.subheader(" 5 Negara dengan Seller Sedikit")
+        bottom_seller = byseller_df.sort_values(by="seller_count", ascending=True).head(5)
+
         fig, ax = plt.subplots()
-        sns.barplot(data=byseller_df.sort_values(by="seller_count", ascending=True).head(5),
-                    y="seller_state", x="seller_count", palette="Greens", ax=ax)
+        sns.barplot(data=bottom_seller, y="seller_state", x="seller_count", palette="Greens", ax=ax)
+        ax.set_xlabel("Total Seller")
+        ax.set_ylabel("State")
         st.pyplot(fig)
+
+        # Tabel
+        st.write("**Tabel: 5 State dengan Seller Sedikit**")
+        st.dataframe(bottom_seller.rename(columns={
+            "seller_state": "Negara Bagian",
+            "seller_count": "Total Seller"
+        }))
+
     
-
+    st.markdown(f"""
+        **Insight:**  
+        Strategi untuk customer dan penjual paling sedikit di setiap negara dapat menerapkan diskon/cashback khusus wilayah serta voucher khusus untuk pelanggan yang mengajak teman/referal. Hal ini bertujuan untuk menarik minat pembelian pertama, meningkatkan aktivitas transaksi, serta membangun loyalitas pelanggan baru di wilayah dengan tingkat transaksi rendah.
+        """)
 
 # RFM ANALYSIS
 
 elif menu == "RFM Analysis":
-    st.title(f" Analisis RFM (Recency, Frequency, Monetary) — {selected_year}")
+    st.title(f"💎 Analisis RFM (Recency, Frequency, Monetary) — {selected_year}")
 
     if "order_purchase_timestamp" in df_filtered.columns:
         recent_date = df_filtered["order_purchase_timestamp"].max()
@@ -153,33 +198,35 @@ elif menu == "RFM Analysis":
         rfm_df["recency"] = (recent_date - rfm_df["last_purchase_date"]).dt.days
 
         # Hitung skor RFM
-        rfm_df["RFM_score"] = rfm_df["recency"].rank(ascending=True) + \
-                              rfm_df["frequency"].rank(ascending=False) + \
-                              rfm_df["monetary"].rank(ascending=False)
+        rfm_df["RFM_score"] = (
+            rfm_df["recency"].rank(ascending=True)
+            + rfm_df["frequency"].rank(ascending=False)
+            + rfm_df["monetary"].rank(ascending=False)
+        )
 
+        # 🔹 Tambahkan kolom ID singkat (4 karakter terakhir)
+        rfm_df["customer_id"] = rfm_df["customer_unique_id"].astype(str).str[-4:]
+
+        # Tampilkan top 5 pelanggan terbaik berdasarkan skor RFM
         best_customer = rfm_df.sort_values(by="RFM_score", ascending=True).head(5)
 
         st.subheader("Top 5 Pelanggan Terbaik Berdasarkan Skor RFM")
-        st.dataframe(best_customer)
+        st.dataframe(best_customer[["customer_id", "recency", "frequency", "monetary", "RFM_score"]])
 
-        # Visualisasi
+        # Visualisasi menggunakan ID singkat
         fig, ax = plt.subplots(1, 3, figsize=(18, 6))
-        sns.barplot(y="recency", x="customer_unique_id", data=rfm_df.sort_values(by="recency").head(5), ax=ax[0], palette="crest")
-        sns.barplot(y="frequency", x="customer_unique_id", data=rfm_df.sort_values(by="frequency", ascending=False).head(5), ax=ax[1], palette="cool")
-        sns.barplot(y="monetary", x="customer_unique_id", data=rfm_df.sort_values(by="monetary", ascending=False).head(5), ax=ax[2], palette="magma")
+        sns.barplot(y="recency", x="customer_id", data=rfm_df.sort_values(by="recency").head(5), ax=ax[0], palette="crest")
+        sns.barplot(y="frequency", x="customer_id", data=rfm_df.sort_values(by="frequency", ascending=False).head(5), ax=ax[1], palette="cool")
+        sns.barplot(y="monetary", x="customer_id", data=rfm_df.sort_values(by="monetary", ascending=False).head(5), ax=ax[2], palette="magma")
 
         ax[0].set_title("Recency (Terbaru)")
         ax[1].set_title("Frequency (Transaksi Terbanyak)")
         ax[2].set_title("Monetary (Pembelian Tertinggi)")
-        st.pyplot(fig)
 
-        st.write("### 📋 Tabel RFM (Customer ID disingkat)")
-        st.dataframe(rfm_df[['short_customer_id', 'recency', 'frequency', 'monetary']].head(15))
+        st.pyplot(fig)
 
         st.markdown(f"""
         **Insight:**  
-        Pelanggan dengan nilai *monetary* tertinggi memberikan kontribusi terbesar terhadap total pendapatan.  
-        Strategi bisnis di tahun {selected_year if selected_year != '2016-2018' else 'periode analisis penuh'} 
-        dapat difokuskan pada **retensi pelanggan bernilai tinggi** melalui program loyalitas, diskon eksklusif, 
-        atau layanan premium.
+        Recency Menunjukkan pelanggan dengan waktu pembelian terakhir paling baru — artinya pelanggan yang masih aktif. Dengan sumbu-X = ID pelanggan dan Sumbu-Y = total belanja. Frequency menunjukkan pelanggan yang paling sering melakukan transaksi. Dengan Sumbu-X = ID pelanggan dan Sumbu-Y = Jumlah transaksi.
+                    Monetary meruapakan pelanggan dengan total pengeluaran tertinggi selama periode analisis. Dengan Sumbu-X = ID pelanggan dan Sumbu-Y = Nilai total pembelian. pelanggan dengan frekuensi tinggi dan nilai transaksi besar dapat dikategorikan sebagai customer loyal. Dapat memberikan kategori membership berdasarkan jumlah transaksi atau total pesanan yang dilakukan dalam jangka waktu yang di tentunakan (6 bulan) dimana kategori tersebut mendapatkan spesial voucher, diskon dan promo produk lainnya.
         """)
